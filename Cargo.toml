@@ -1,0 +1,10 @@
+[package]
+name = "debug_system"
+version = "0.1.0"
+authors = ["Kaneyuki Hiromasa <matsugen2511@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+amethyst={git="https://github.com/amethyst/amethyst.git"}
+log="*"
+serde="*"
