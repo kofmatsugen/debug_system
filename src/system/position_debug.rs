@@ -31,12 +31,6 @@ impl<'s> System<'s> for PositionDrawSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, DebugLinesComponent>,
     );
-
-    fn setup(&mut self, res: &mut Resources) {
-        debug!("setup");
-        Self::SystemData::setup(res);
-    }
-
     fn run(&mut self, data: Self::SystemData) {
         let (entities, parents, mut transforms, mut debugs) = data;
         if self.reader.is_none() {

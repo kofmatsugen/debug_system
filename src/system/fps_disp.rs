@@ -30,11 +30,6 @@ impl<'s> System<'s> for FpsDispSystem {
         Entities<'s>,
     );
 
-    fn setup(&mut self, res: &mut Resources) {
-        log::debug!("setup");
-        Self::SystemData::setup(res);
-    }
-
     fn run(&mut self, data: Self::SystemData) {
         let (loader, storage, mut transforms, mut texts, fps, entities) = data;
 

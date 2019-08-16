@@ -29,11 +29,6 @@ impl<'s> System<'s> for EntityCountSystem {
         Entities<'s>,
     );
 
-    fn setup(&mut self, res: &mut Resources) {
-        debug!("setup");
-        Self::SystemData::setup(res);
-    }
-
     fn run(&mut self, data: Self::SystemData) {
         let (loader, storage, mut transforms, mut texts, entities) = data;
 
