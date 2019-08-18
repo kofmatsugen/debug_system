@@ -4,7 +4,6 @@ use amethyst::{
     ui::{get_default_font, Anchor, FontAsset, FontHandle, UiText, UiTransform},
     utils::fps_counter::FpsCounter,
 };
-use log::*;
 
 pub struct FpsDispSystem {
     system_font: Option<FontHandle>,

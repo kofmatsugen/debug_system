@@ -8,8 +8,6 @@ use amethyst::{
     renderer::{debug_drawing::DebugLinesComponent, palette::rgb::Srgba},
 };
 
-use log::*;
-
 pub struct PositionDrawSystem {
     reader: Option<ReaderId<ComponentEvent>>,
     updated: BitSet,
