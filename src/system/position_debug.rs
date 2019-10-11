@@ -5,7 +5,7 @@ use amethyst::{
     },
     ecs::prelude::ComponentEvent,
     ecs::*,
-    renderer::{debug_drawing::DebugLinesComponent, palette::rgb::Srgba},
+    renderer::{debug_drawing::DebugLinesComponent, palette::rgb::Srgba, ActiveCamera},
 };
 
 pub struct PositionDrawSystem {
@@ -25,12 +25,21 @@ impl PositionDrawSystem {
 impl<'s> System<'s> for PositionDrawSystem {
     type SystemData = (
         Entities<'s>,
+        Read<'s, ActiveCamera>,
         ReadStorage<'s, Parent>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, DebugLinesComponent>,
     );
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, parents, mut transforms, mut debugs) = data;
+        let (entities, camera, parents, mut transforms, mut debugs) = data;
+        let camera_z = camera
+            .entity
+            .and_then(|entity| transforms.get(entity))
+            .map(|transform| transform.translation().z - 1.);
+        if camera_z.is_none() == true {
+            return;
+        }
+        let position_z = camera_z.unwrap();
         if self.reader.is_none() {
             self.reader = transforms.register_reader().into();
         }
@@ -56,13 +65,13 @@ impl<'s> System<'s> for PositionDrawSystem {
                     let left = Point3::new(
                         transform.translation().x - 10.0f32,
                         transform.translation().y,
-                        0.0f32,
+                        position_z,
                     );
 
                     let right = Point3::new(
                         transform.translation().x + 10.0f32,
                         transform.translation().y,
-                        0.0f32,
+                        position_z,
                     );
 
                     lines.add_line(left, right, color);
@@ -70,13 +79,13 @@ impl<'s> System<'s> for PositionDrawSystem {
                     let top = Point3::new(
                         transform.translation().x,
                         transform.translation().y - 10.0f32,
-                        0.0f32,
+                        position_z,
                     );
 
                     let down = Point3::new(
                         transform.translation().x,
                         transform.translation().y + 10.0f32,
-                        0.0f32,
+                        position_z,
                     );
                     lines.add_line(top, down, color);
                 }
@@ -85,13 +94,13 @@ impl<'s> System<'s> for PositionDrawSystem {
                     let left = Point3::new(
                         transform.translation().x - 10.0f32,
                         transform.translation().y,
-                        0.0f32,
+                        position_z,
                     );
 
                     let right = Point3::new(
                         transform.translation().x + 10.0f32,
                         transform.translation().y,
-                        0.0f32,
+                        position_z,
                     );
 
                     lines.add_line(left, right, color);
@@ -105,7 +114,7 @@ impl<'s> System<'s> for PositionDrawSystem {
                     let down = Point3::new(
                         transform.translation().x,
                         transform.translation().y + 10.0f32,
-                        0.0f32,
+                        position_z,
                     );
                     lines.add_line(top, down, color);
                     let _ = debugs.insert(e, lines);
