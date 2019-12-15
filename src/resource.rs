@@ -5,7 +5,7 @@ use amethyst::{
 };
 
 pub struct DebugFont {
-    pub(crate) system_font: FontHandle,
+    pub system_font: FontHandle,
 }
 
 impl DebugFont {
