@@ -1,28 +1,23 @@
+use crate::resource::DebugFont;
 use amethyst::{
-    assets::*,
     ecs::*,
-    ui::{get_default_font, Anchor, FontAsset, FontHandle, UiText, UiTransform},
+    ui::{Anchor, UiText, UiTransform},
     utils::fps_counter::FpsCounter,
 };
 
 pub struct FpsDispSystem {
-    system_font: Option<FontHandle>,
     fps_disp_ui: Option<Entity>,
 }
 
 impl FpsDispSystem {
     pub fn new() -> Self {
-        FpsDispSystem {
-            system_font: None,
-            fps_disp_ui: None,
-        }
+        FpsDispSystem { fps_disp_ui: None }
     }
 }
 
 impl<'s> System<'s> for FpsDispSystem {
     type SystemData = (
-        ReadExpect<'s, Loader>,
-        Read<'s, AssetStorage<FontAsset>>,
+        ReadExpect<'s, DebugFont>,
         WriteStorage<'s, UiTransform>,
         WriteStorage<'s, UiText>,
         Read<'s, FpsCounter>,
@@ -30,18 +25,9 @@ impl<'s> System<'s> for FpsDispSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (loader, storage, mut transforms, mut texts, fps, entities) = data;
+        let (debug_font, mut transforms, mut texts, fps, entities) = data;
 
-        match &self.system_font {
-            Some(_) => {}
-            None => {
-                let handle = get_default_font(&loader, &storage);
-                log::info!("set default font: {:?}", handle);
-                self.system_font = Some(handle);
-            }
-        }
-
-        let system_font = self.system_font.as_ref().unwrap().clone();
+        let system_font = debug_font.system_font.clone();
         let count_text = format!("fps: {:.2}", fps.sampled_fps());
 
         if let Some(ui) = &self.fps_disp_ui {

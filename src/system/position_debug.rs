@@ -62,6 +62,7 @@ impl<'s> System<'s> for PositionDrawSystem {
 
             match debugs.get_mut(e) {
                 Some(lines) => {
+                    lines.clear();
                     let left = Point3::new(
                         transform.translation().x - 10.0f32,
                         transform.translation().y,
