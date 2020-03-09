@@ -1,7 +1,6 @@
-use crate::resource::DebugFont;
 use amethyst::{
     ecs::*,
-    ui::{Anchor, UiText, UiTransform},
+    ui::{UiFinder, UiText},
     utils::fps_counter::FpsCounter,
 };
 
@@ -16,40 +15,25 @@ impl FpsDispSystem {
 }
 
 impl<'s> System<'s> for FpsDispSystem {
-    type SystemData = (
-        ReadExpect<'s, DebugFont>,
-        WriteStorage<'s, UiTransform>,
-        WriteStorage<'s, UiText>,
-        Read<'s, FpsCounter>,
-        Entities<'s>,
-    );
+    type SystemData = (WriteStorage<'s, UiText>, Read<'s, FpsCounter>, UiFinder<'s>);
 
     fn run(&mut self, data: Self::SystemData) {
-        let (debug_font, mut transforms, mut texts, fps, entities) = data;
+        self.update_ui(data);
+    }
+}
 
-        let system_font = debug_font.system_font.clone();
-        let count_text = format!("fps: {:.2}", fps.sampled_fps());
+impl FpsDispSystem {
+    fn update_ui(&mut self, data: <FpsDispSystem as System>::SystemData) -> Option<()> {
+        let (mut texts, fps, finder) = data;
 
-        if let Some(ui) = &self.fps_disp_ui {
-            let text = texts.get_mut(*ui).unwrap();
-            text.text = count_text;
-        } else {
-            let entity = entities.create();
-            let transform = UiTransform::new(
-                "fps_disp".to_string(),
-                Anchor::TopLeft,
-                Anchor::TopLeft,
-                0.,
-                -32.,
-                0.,
-                200.,
-                16.,
-            );
-            let text = UiText::new(system_font, count_text, [0., 0., 0., 1.], 16.);
-
-            let _transform = transforms.insert(entity, transform);
-            let _text = texts.insert(entity, text);
-            self.fps_disp_ui = Some(entity);
+        if self.fps_disp_ui.is_none() {
+            self.fps_disp_ui = finder.find("debug_fps_sample");
         }
+        let ui = self.fps_disp_ui?;
+
+        let text_ui = texts.get_mut(ui)?;
+        text_ui.text = format!("fps: {:.2}", fps.sampled_fps());
+
+        Some(())
     }
 }
