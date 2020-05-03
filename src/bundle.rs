@@ -1,9 +1,5 @@
-use crate::{
-    resource::DebugFont,
-    system::{
-        entity_count::EntityCountSystem, fps_disp::FpsDispSystem,
-        position_debug::PositionDrawSystem,
-    },
+use crate::system::{
+    entity_count::EntityCountSystem, fps_disp::FpsDispSystem, position_debug::PositionDrawSystem,
 };
 use amethyst::{
     core::SystemBundle,
@@ -24,11 +20,9 @@ impl<'a, 'b> SystemBundle<'a, 'b> for DebugSystemBundle {
         world: &mut World,
         builder: &mut DispatcherBuilder,
     ) -> Result<(), amethyst::Error> {
-        DebugFont::insert_world(world);
-
         builder.add(EntityCountSystem::new(), "entity_count_system", &[]);
         builder.add(FpsDispSystem::new(), "fps_disp_system", &[]);
-        builder.add(PositionDrawSystem::new(), "position_draw_system", &[]);
+        builder.add(PositionDrawSystem::new(world), "position_draw_system", &[]);
 
         Ok(())
     }
