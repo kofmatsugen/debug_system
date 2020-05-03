@@ -1,3 +1,4 @@
+pub(crate) mod debug_info_disp;
 pub(crate) mod entity_count;
 pub(crate) mod fps_disp;
 pub(crate) mod info_disp;
