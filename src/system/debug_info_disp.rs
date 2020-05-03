@@ -40,10 +40,16 @@ where
         // タグの付いたものだけ
         for (_, e, transform) in (&tags, &*entities, &transforms).join() {
             // 対応するUIがなければ作る
-            let ui_entity = *self.displayed.entry(e).or_insert(entities.create());
+            let mut ui_entity = self.displayed.get(&e).map(|e| *e);
+            if ui_entity.is_none() {
+                let entity = entities.create();
+                self.displayed.insert(e, entity);
+                ui_entity = Some(entity);
+            }
+
             match update_ui::<T>(
                 e,
-                ui_entity,
+                ui_entity.unwrap(),
                 transform,
                 &mut texts,
                 &mut ui_transforms,
