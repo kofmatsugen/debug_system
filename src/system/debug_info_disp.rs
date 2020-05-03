@@ -42,6 +42,7 @@ where
             // 対応するUIがなければ作る
             let ui_entity = *self.displayed.entry(e).or_insert(entities.create());
             match update_ui::<T>(
+                e,
                 ui_entity,
                 transform,
                 &mut texts,
@@ -57,6 +58,7 @@ where
 }
 
 fn update_ui<'s, T>(
+    base_entity: Entity,
     entity: Entity,
     transform: &Transform,
     texts: &mut WriteStorage<'s, UiText>,
@@ -90,7 +92,7 @@ where
     ui_transform.local_y = transform.translation().y;
     ui_transform.local_z = transform.translation().z;
 
-    text.text = T::display(entity, display_data);
+    text.text = T::display(base_entity, display_data).unwrap_or("".to_string());
 
     Ok(())
 }

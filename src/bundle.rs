@@ -4,21 +4,30 @@ use crate::{
         debug_info_disp::DebugInfomationDisplaySystem, entity_count::EntityCountSystem,
         fps_disp::FpsDispSystem, position_debug::PositionDrawSystem,
     },
+    traits::DebugDisplayFormat,
 };
 use amethyst::{
     core::SystemBundle,
     ecs::{DispatcherBuilder, World},
 };
+use std::marker::PhantomData;
 
-pub struct DebugSystemBundle;
+pub struct DebugSystemBundle<D> {
+    display_info: PhantomData<D>,
+}
 
-impl DebugSystemBundle {
+impl<D> DebugSystemBundle<D> {
     pub fn new() -> Self {
-        DebugSystemBundle
+        DebugSystemBundle {
+            display_info: PhantomData,
+        }
     }
 }
 
-impl<'a, 'b> SystemBundle<'a, 'b> for DebugSystemBundle {
+impl<'a, 'b, D> SystemBundle<'a, 'b> for DebugSystemBundle<D>
+where
+    D: for<'c> DebugDisplayFormat<'c>,
+{
     fn build(
         self,
         world: &mut World,
@@ -30,7 +39,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for DebugSystemBundle {
         builder.add(FpsDispSystem::new(), "fps_disp_system", &[]);
         builder.add(PositionDrawSystem::new(world), "position_draw_system", &[]);
         builder.add(
-            DebugInfomationDisplaySystem::<()>::new(system_font.clone()),
+            DebugInfomationDisplaySystem::<D>::new(system_font.clone()),
             "debug_info_disp",
             &[],
         );
