@@ -39,7 +39,7 @@ impl<'s> System<'s> for FpsDispSystem {
         (camera, mut texts, fps, finder, mut debug_lines, transforms, dim): Self::SystemData,
     ) {
         self.update_ui(&mut texts, &fps, &finder);
-        self.fps_buffer.push(fps.sampled_fps());
+        self.fps_buffer.push(fps.frame_fps());
 
         let camera_z = camera
             .entity
