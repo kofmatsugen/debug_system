@@ -36,7 +36,7 @@ where
         let system_font = DebugFont::insert_world(world);
 
         builder.add(EntityCountSystem::new(), "entity_count_system", &[]);
-        builder.add(FpsDispSystem::new(), "fps_disp_system", &[]);
+        builder.add(FpsDispSystem::new(world), "fps_disp_system", &[]);
         builder.add(PositionDrawSystem::new(world), "position_draw_system", &[]);
         builder.add(
             DebugInfomationDisplaySystem::<D>::new(system_font.clone()),
