@@ -2,6 +2,7 @@ use crate::{components::DebugInfomationDisplay, traits::DebugDisplayFormat};
 use amethyst::{
     core::Transform,
     ecs::{Entities, Entity, Join, ReadStorage, System, WriteStorage},
+    renderer::debug_drawing::DebugLinesComponent,
     ui::{Anchor, FontHandle, LineMode, UiText, UiTransform},
 };
 use std::{collections::BTreeMap, marker::PhantomData};
@@ -29,6 +30,7 @@ where
     type SystemData = (
         WriteStorage<'s, UiText>,
         WriteStorage<'s, UiTransform>,
+        WriteStorage<'s, DebugLinesComponent>,
         ReadStorage<'s, DebugInfomationDisplay<T>>,
         ReadStorage<'s, Transform>,
         Entities<'s>,
@@ -36,7 +38,15 @@ where
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut texts, mut ui_transforms, tags, transforms, entities, display_data) = data;
+        let (
+            mut texts,
+            mut ui_transforms,
+            mut debug_lines,
+            tags,
+            transforms,
+            entities,
+            display_data,
+        ) = data;
         // タグの付いたものだけ
         for (_, e, transform) in (&tags, &*entities, &transforms).join() {
             // 対応するUIがなければ作る
@@ -59,8 +69,30 @@ where
                 Ok(()) => {}
                 Err(err) => log::error!("error: {:?}", err),
             }
+
+            match update_debug_lines::<T>(e, &mut debug_lines, &display_data) {
+                Ok(()) => {}
+                Err(err) => log::error!("error: {:?}", err),
+            }
         }
     }
+}
+
+fn update_debug_lines<'s, T>(
+    base_entity: Entity,
+    debug_lines: &mut WriteStorage<'s, DebugLinesComponent>,
+    display_data: &T::DisplayData,
+) -> amethyst::Result<()>
+where
+    T: DebugDisplayFormat<'s>,
+{
+    let debug_lines = debug_lines
+        .entry(base_entity)?
+        .or_insert(DebugLinesComponent::with_capacity(32));
+    debug_lines.clear();
+
+    T::debug_lines(base_entity, debug_lines, display_data, 1023.);
+    Ok(())
 }
 
 fn update_ui<'s, T>(
