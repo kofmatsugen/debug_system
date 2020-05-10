@@ -123,7 +123,7 @@ where
         0.,
         0.,
         0.,
-        200.,
+        600.,
         600.,
     ));
     ui_transform.local_x = transform.translation().x;
