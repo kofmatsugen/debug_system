@@ -1,5 +1,5 @@
 use amethyst::{
-    core::{math::Point3, Transform},
+    core::{math::Point3, Time, Transform},
     ecs::{Builder, Entity, Read, ReadExpect, ReadStorage, System, World, WorldExt, WriteStorage},
     renderer::{debug_drawing::DebugLinesComponent, palette::rgb::Srgba, ActiveCamera},
     ui::{UiFinder, UiText},
@@ -32,13 +32,14 @@ impl<'s> System<'s> for FpsDispSystem {
         WriteStorage<'s, DebugLinesComponent>,
         ReadStorage<'s, Transform>,
         ReadExpect<'s, ScreenDimensions>,
+        ReadExpect<'s, Time>,
     );
 
     fn run(
         &mut self,
-        (camera, mut texts, fps, finder, mut debug_lines, transforms, dim): Self::SystemData,
+        (camera, mut texts, fps, finder, mut debug_lines, transforms, dim, time): Self::SystemData,
     ) {
-        self.update_ui(&mut texts, &fps, &finder);
+        self.update_ui(&mut texts, &fps, &time, &finder);
         self.fps_buffer.push(fps.frame_fps());
 
         let camera_z = camera
@@ -66,6 +67,7 @@ impl FpsDispSystem {
         &mut self,
         texts: &mut WriteStorage<UiText>,
         fps: &FpsCounter,
+        time: &Time,
         finder: &UiFinder,
     ) -> Option<()> {
         if self.fps_disp_ui.is_none() {
@@ -74,7 +76,11 @@ impl FpsDispSystem {
         let ui = self.fps_disp_ui?;
 
         let text_ui = texts.get_mut(ui)?;
-        text_ui.text = format!("fps: {:.2}", fps.sampled_fps());
+        text_ui.text = format!(
+            "fps: {:.2} (delta: {:.4} s)",
+            fps.frame_fps(),
+            time.delta_seconds()
+        );
 
         Some(())
     }
